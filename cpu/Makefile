@@ -87,7 +87,7 @@ CC_FLAGS += -std=gnu11 -Wno-deprecated-declarations $(INC_FLAGS)
 CC_FLAGS += -fcommon
 
 # we havn't finish all CUDA API implementation, but we need to pass the link stage
-LD_FLAGS = --unresolved-symbols=ignore-all $(LIB_FLAGS) -ltirpc -ldl -lcrypto -lelf 
+LD_FLAGS = -Wl,--unresolved-symbols=ignore-all $(LIB_FLAGS) -ltirpc -ldl -lcrypto -lelf 
 
 ifdef WITH_DEBUG
 # use ASAN_OPTIONS=protect_shadow_gap=0  LSAN_OPTIONS=fast_unwind_on_malloc=0 when running
