@@ -34,7 +34,7 @@ cpu: libtirpc
 
 server: libtirpc
 	@echo -e "\033[36m----> Building cpu server side code\033[0m"
-	$(MAKE) -C server
+	$(MAKE) -C cpu server
 
 tests:
 	@echo -e "\033[36m----> Building test kernels\033[0m"
