@@ -118,6 +118,8 @@ CLIENT_LD_FLAGS = $(LD_FLAGS)
 # Targets
 .PHONY: all clean
 
+server: $(SERVER)
+
 all : $(SERVER) $(CLIENT)
 
 $(CLIENT) : $(OBJ_CLIENT)
