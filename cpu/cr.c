@@ -201,43 +201,43 @@ out:
 
 static int cr_restore_cusolver(api_record_t *record, resource_mg *rm_cusolver)
 {
-    cusolverDnHandle_t new_handle = NULL;
-    cusolverStatus_t err;
-    ptr_result res = record->result.ptr_result_u;
-    if (record->function == rpc_cusolverDnCreate) {
-        if ((err = cusolverDnCreate(&new_handle)) != CUSOLVER_STATUS_SUCCESS) {
-            LOGE(LOG_ERROR, "CUSOLVER error while restoring event");
-            return 1;
-        }
-    } else {
-        LOGE(LOG_ERROR, "cannot restore an cusolver handle from a record that is not an cusolver_create record");
-        return 1;
-    }
-    if (resource_mg_add_sorted(rm_cusolver, (void*)res.ptr_result_u.ptr, new_handle) != 0) {
-        LOGE(LOG_ERROR, "error adding to event resource manager");
-        return 1;
-    }
+    // cusolverDnHandle_t new_handle = NULL;
+    // cusolverStatus_t err;
+    // ptr_result res = record->result.ptr_result_u;
+    // if (record->function == rpc_cusolverDnCreate) {
+    //     if ((err = cusolverDnCreate(&new_handle)) != CUSOLVER_STATUS_SUCCESS) {
+    //         LOGE(LOG_ERROR, "CUSOLVER error while restoring event");
+    //         return 1;
+    //     }
+    // } else {
+    //     LOGE(LOG_ERROR, "cannot restore an cusolver handle from a record that is not an cusolver_create record");
+    //     return 1;
+    // }
+    // if (resource_mg_add_sorted(rm_cusolver, (void*)res.ptr_result_u.ptr, new_handle) != 0) {
+    //     LOGE(LOG_ERROR, "error adding to event resource manager");
+    //     return 1;
+    // }
     return 0;
 }
 
 static int cr_restore_cublas(api_record_t *record, resource_mg *rm_cublas)
 {
-    cublasHandle_t new_handle = NULL;
-    cublasStatus_t err;
-    ptr_result res = record->result.ptr_result_u;
-    if (record->function == rpc_cublasCreate) {
-        if ((err = cublasCreate_v2(&new_handle)) != CUBLAS_STATUS_SUCCESS) {
-            LOGE(LOG_ERROR, "cublas error while restoring event");
-            return 1;
-        }
-    } else {
-        LOGE(LOG_ERROR, "cannot restore a cublas handle from a record that is not a cublas_create record");
-        return 1;
-    }
-    if (resource_mg_add_sorted(rm_cublas, (void*)res.ptr_result_u.ptr, new_handle) != 0) {
-        LOGE(LOG_ERROR, "error adding to event resource manager");
-        return 1;
-    }
+    // cublasHandle_t new_handle = NULL;
+    // cublasStatus_t err;
+    // ptr_result res = record->result.ptr_result_u;
+    // if (record->function == rpc_cublasCreate) {
+    //     if ((err = cublasCreate_v2(&new_handle)) != CUBLAS_STATUS_SUCCESS) {
+    //         LOGE(LOG_ERROR, "cublas error while restoring event");
+    //         return 1;
+    //     }
+    // } else {
+    //     LOGE(LOG_ERROR, "cannot restore a cublas handle from a record that is not a cublas_create record");
+    //     return 1;
+    // }
+    // if (resource_mg_add_sorted(rm_cublas, (void*)res.ptr_result_u.ptr, new_handle) != 0) {
+    //     LOGE(LOG_ERROR, "error adding to event resource manager");
+    //     return 1;
+    // }
     return 0;
 }
 
@@ -940,18 +940,18 @@ static int cr_restore_resources(const char *path, api_record_t *record,
     case CUDA_LAUNCH_KERNEL:
     case CUDA_LAUNCH_COOPERATIVE_KERNEL:
         break;
-    case rpc_cusolverDnCreate:
-        if (cr_restore_cusolver(record, rm_cusolver) != 0) {
-            LOGE(LOG_ERROR, "error restoring cusolver");
-            goto cleanup;
-        }
-        break;
-    case rpc_cublasCreate:
-        if (cr_restore_cublas(record, rm_cublas) != 0) {
-            LOGE(LOG_ERROR, "error restoring cublas");
-            goto cleanup;
-        }
-        break;
+    // case rpc_cusolverDnCreate:
+    //     if (cr_restore_cusolver(record, rm_cusolver) != 0) {
+    //         LOGE(LOG_ERROR, "error restoring cusolver");
+    //         goto cleanup;
+    //     }
+    //     break;
+    // case rpc_cublasCreate:
+    //     if (cr_restore_cublas(record, rm_cublas) != 0) {
+    //         LOGE(LOG_ERROR, "error restoring cublas");
+    //         goto cleanup;
+    //     }
+    //     break;
     case rpc_cuDeviceGet:
         if (cr_restore_device(record, rm_devices) != 0) {
             LOGE(LOG_ERROR, "error restoring device");
