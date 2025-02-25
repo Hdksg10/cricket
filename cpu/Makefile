@@ -31,8 +31,6 @@ SRC_SERVER = $(RPC_XDR)                 \
 			 cpu-server-driver-hidden.c \
 			 log.c                      \
 			 cpu-libwrap.c              \
-			 cpu-server-cusolver.c 		\
-			 cpu-server-cublas.c 		\
 			 list.c                     \
 			 api-recorder.c 			\
 			 resource-mg.c 			    \
@@ -40,9 +38,7 @@ SRC_SERVER = $(RPC_XDR)                 \
 			 gsched_none.c 			    \
 			 oob.c 					    \
 			 mt-memcpy.c				\
-			 cpu-elf2.c					\
-			 cpu-server-nvml.c			\
-			 cpu-server-cublaslt.c
+			 cpu-elf2.c					
 
 SRC_SERVER_LIB = server-library.c
 SRC_SERVER_EXE = server-exe.c

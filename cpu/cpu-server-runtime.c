@@ -30,10 +30,10 @@
 #include "api-recorder.h"
 #include "resource-mg.h"
 #include "cpu-server-runtime.h"
-#include "cr.h"
-#include "cpu-server-cusolver.h"
-#include "cpu-server-cublas.h"
-#include "cpu-server-cublaslt.h"
+// #include "cr.h"
+// #include "cpu-server-cusolver.h"
+// #include "cpu-server-cublas.h"
+// #include "cpu-server-cublaslt.h"
 #include "mt-memcpy.h"
 
 typedef struct host_alloc_info {
@@ -74,9 +74,9 @@ int server_runtime_init(int restore)
         ret &= resource_mg_init(&rm_arrays, 1);
         ret &= memory_mg_init(&rm_memory, 1);
         ret &= resource_mg_init(&rm_graphs, 1);
-        ret &= cusolver_init(1, &rm_streams);
-        ret &= cublas_init(1);
-	    ret &= cublaslt_init(1);
+        // ret &= cusolver_init(1, &rm_streams);
+        // ret &= cublas_init(1);
+	    // ret &= cublaslt_init(1);
     } else {
         ret &= resource_mg_init(&rm_streams, 0);
         ret &= resource_mg_init(&rm_events, 0);
@@ -84,10 +84,10 @@ int server_runtime_init(int restore)
         ret &= memory_mg_init(&rm_memory, 0);
         ret &= resource_mg_init(&rm_kernels, 0);
         ret &= resource_mg_init(&rm_graphs, 0);
-        ret &= cusolver_init(0, &rm_streams);
-        ret &= cublas_init(0);
+        // ret &= cusolver_init(0, &rm_streams);
+        // ret &= cublas_init(0);
         ret &= server_runtime_restore("ckp");
-	    ret &= cublaslt_init(0);
+	    // ret &= cublaslt_init(0);
     }
 
     return ret;
@@ -115,8 +115,8 @@ int server_runtime_deinit(void)
     memory_mg_free(&rm_memory);
     resource_mg_free(&rm_kernels);
     resource_mg_free(&rm_graphs);
-    cusolver_deinit();
-    cublas_deinit();
+    // cusolver_deinit();
+    // cublas_deinit();
     list_free(&mt_memcpy_list);
     return 0;
 
@@ -124,24 +124,24 @@ int server_runtime_deinit(void)
 
 int server_runtime_checkpoint(const char *path, int dump_memory, unsigned long prog, unsigned long vers)
 {
-    if (cr_dump_rpc_id(path, prog, vers) != 0) {
-        LOGE(LOG_ERROR, "error dumping api_records");
-        return 1;
-    }
-    if (cr_dump(path) != 0) {
-        LOGE(LOG_ERROR, "error dumping api_records");
-        return 1;
-    }
-    if (dump_memory == 1) {
-        if (cr_dump_elfs(path) != 0) {
-            LOGE(LOG_ERROR, "error dumping elfs");
-            return 1;
-        }
-        if (cr_dump_memory(path) != 0) {
-            LOGE(LOG_ERROR, "error dumping memory");
-            return 1;
-        }
-    }
+    // if (cr_dump_rpc_id(path, prog, vers) != 0) {
+    //     LOGE(LOG_ERROR, "error dumping api_records");
+    //     return 1;
+    // }
+    // if (cr_dump(path) != 0) {
+    //     LOGE(LOG_ERROR, "error dumping api_records");
+    //     return 1;
+    // }
+    // if (dump_memory == 1) {
+    //     if (cr_dump_elfs(path) != 0) {
+    //         LOGE(LOG_ERROR, "error dumping elfs");
+    //         return 1;
+    //     }
+    //     if (cr_dump_memory(path) != 0) {
+    //         LOGE(LOG_ERROR, "error dumping memory");
+    //         return 1;
+    //     }
+    // }
     return 0;
 }
 
@@ -150,11 +150,11 @@ int server_runtime_restore(const char *path)
     struct timeval start, end;
     double time = 0;
     gettimeofday(&start, NULL);
-    if (cr_restore(path, &rm_memory, &rm_streams, &rm_events, &rm_arrays,
-                   cusolver_get_rm(), cublas_get_rm(), &rm_modules, &rm_devices) != 0) {
-        LOGE(LOG_ERROR, "error restoring api_records");
-        return 1;
-    }
+    // if (cr_restore(path, &rm_memory, &rm_streams, &rm_events, &rm_arrays,
+    //                NULL, NULL, &rm_modules, &rm_devices) != 0) {
+    //     LOGE(LOG_ERROR, "error restoring api_records");
+    //     return 1;
+    // }
     gettimeofday(&end, NULL);
     time = ((double)((end.tv_sec * 1e6 + end.tv_usec) -
                      (start.tv_sec * 1e6 + start.tv_usec)))/1.e6;

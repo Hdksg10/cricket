@@ -25,8 +25,6 @@
 #define WITH_RECORDER
 #include "api-recorder.h"
 #include "gsched.h"
-#include "cpu-server-nvml.h"
-#include "cpu-server-cudnn.h"
 
 INIT_SOCKTYPE
 
@@ -306,15 +304,15 @@ void cricket_main(size_t prog_num, size_t vers_num)
         goto cleanup3;
     }
 
-    if (server_nvml_init(restore) != 0) {
-        LOGE(LOG_ERROR, "initializing server_nvml failed.");
-        goto cleanup1;
-    }
+    // if (server_nvml_init(restore) != 0) {
+    //     LOGE(LOG_ERROR, "initializing server_nvml failed.");
+    //     goto cleanup1;
+    // }
 
-    if (server_cudnn_init(restore) != 0) {
-        LOGE(LOG_ERROR, "initializing server_nvml failed.");
-        goto cleanup0;
-    }
+    // if (server_cudnn_init(restore) != 0) {
+    //     LOGE(LOG_ERROR, "initializing server_nvml failed.");
+    //     goto cleanup0;
+    // }
 
 #ifdef WITH_IB
 
@@ -346,11 +344,11 @@ void cricket_main(size_t prog_num, size_t vers_num)
     ret = 0;
     //api_records_print();
  cleanup00:
-    server_cudnn_deinit();
+    // server_cudnn_deinit();
  cleanup0:
     server_driver_deinit();
  cleanup1:
-    server_nvml_deinit();
+    // server_nvml_deinit();
  cleanup2:
     server_runtime_deinit();
  cleanup3:
