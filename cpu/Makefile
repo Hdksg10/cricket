@@ -4,7 +4,7 @@ SERVER_LIB = cricket-server.so
 #RPC client library
 CLIENT = cricket-client.so
 
-CUDA_SRC = ../../../../
+CUDA_SRC = ../../../../include/cuda
 LIBTIRPC_PREFIX = ../submodules/libtirpc/install
 SUBMODULE_LIBS = ../submodules/lib
 
