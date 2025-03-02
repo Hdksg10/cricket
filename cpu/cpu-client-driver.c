@@ -614,7 +614,23 @@ CUresult cuMemcpyHtoD(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCou
 }
 DEF_FN(CUresult, cuMemcpyHtoD_v2_ptds, CUdeviceptr, dstDevice, const void*, srcHost, size_t, ByteCount)
 #undef cuMemcpyDtoH
-DEF_FN(CUresult, cuMemcpyDtoH, void*, dstHost, CUdeviceptr, srcDevice, size_t, ByteCount)
+// DEF_FN(CUresult, cuMemcpyDtoH, void*, dstHost, CUdeviceptr, srcDevice, size_t, ByteCount)
+CUresult cuMemcpyDtoH(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount)
+{
+	enum clnt_stat retval;
+    mem_data dst;
+    int result;
+    dst.mem_data_len = ByteCount;
+    dst.mem_data_val = (void*)dstHost;
+    // retval = rpc_cumemcpydtoh_1((uint64_t)dstDevice, src, &result, clnt);
+    retval = rpc_cumemcpydtoh_1(dst, (uint64_t)srcDevice, &result, clnt); 
+    printf("[rpc] %s = %d\n", __FUNCTION__, result);
+	if (retval != RPC_SUCCESS) {
+		fprintf(stderr, "[rpc] %s failed.", __FUNCTION__);
+        return CUDA_ERROR_UNKNOWN;
+	}
+    return result;
+}
 DEF_FN(CUresult, cuMemcpyDtoH_v2_ptds, void*, dstHost, CUdeviceptr, srcDevice, size_t, ByteCount)
 #undef cuMemcpyDtoD
 DEF_FN(CUresult, cuMemcpyDtoD, CUdeviceptr, dstDevice, CUdeviceptr, srcDevice, size_t, ByteCount)

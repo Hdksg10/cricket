@@ -529,6 +529,17 @@ bool_t rpc_cumemcpyhtod_1_svc(uint64_t dptr, mem_data hptr, int *result,
     return 1;
 }
 
+bool_t rpc_cumemcpdtoh_1_svc(mem_data hptr, uint64_t dptr, int *result,
+    struct svc_req *rqstp)
+{
+    LOG(LOG_DEBUG, "%s(%p,%p,%d)", __FUNCTION__, dptr, hptr.mem_data_val, hptr.mem_data_len);
+    GSCHED_RETAIN;
+    *result = cuMemcpyDtoH_v2(hptr.mem_data_val,(CUdeviceptr)dptr, 
+    hptr.mem_data_len);
+    GSCHED_RELEASE;
+    return 1;
+}
+
 bool_t rpc_culaunchkernel_1_svc(uint64_t f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, uint64_t hStream, mem_data args, int* result, struct svc_req *rqstp)
 {
     void **cuda_args;
