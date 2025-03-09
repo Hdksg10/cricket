@@ -47,13 +47,34 @@ CUresult cuDeviceTotalMem(size_t* bytes, CUdevice dev)
 #undef cuCtxCreate
 CUresult cuCtxCreate(CUcontext *pctx, unsigned int flags, CUdevice dev)
 {
-    DEF_FN_PTR(CUresult, CUcontext*, unsigned int, CUdevice);
-    DEF_DLSYM(CUresult, cuCtxCreate)
-    CAL_FN_PTR(pctx, flags, dev);
-    printf("%s(%p, %u, %d) = %d\n", __FUNCTION__, pctx, flags, dev, ret);
-    return ret;
+    ptr_result result;
+    enum clnt_stat retval_1;
+    LOGE(LOG_DEBUG, "%s(%p, %u, %d)", __FUNCTION__, pctx, flags, dev);
+    retval_1 = rpc_cuctxcreate_1(flags, (ptr)dev, &result, clnt);
+    if (retval_1 != RPC_SUCCESS) {
+        clnt_perror (clnt, "call failed");
+    }
+    if (result.err == 0) {
+        *pctx = (void*)result.ptr_result_u.ptr;
+        LOGE(LOG_DEBUG, "context: %p", *pctx);
+    }
+    return result.err;
 }
-
+CUresult cuCtxCreate_v2(CUcontext *pctx, unsigned int flags, CUdevice dev)
+{
+    ptr_result result;
+    enum clnt_stat retval_1;
+    LOGE(LOG_DEBUG, "%s(%p, %u, %d)", __FUNCTION__, pctx, flags, dev);
+    retval_1 = rpc_cuctxcreate_1(flags, (ptr)dev, &result, clnt);
+    if (retval_1 != RPC_SUCCESS) {
+        clnt_perror (clnt, "call failed");
+    }
+    if (result.err == 0) {
+        *pctx = (void*)result.ptr_result_u.ptr;
+        LOGE(LOG_DEBUG, "context: %p", *pctx);
+    }
+    return result.err;
+}
 #undef cuCtxCreate_v3
 CUresult cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray, int numParams, unsigned int flags, CUdevice dev)
 {
@@ -75,7 +96,19 @@ CUresult cuCtxCreate_v3(CUcontext* pctx, CUexecAffinityParam* paramsArray, int n
         
 }
 
-DEF_FN(CUresult, cuCtxSynchronize)
+// DEF_FN(CUresult, cuCtxSynchronize)
+CUresult cuCtxSynchronize()
+{
+    enum clnt_stat retval;
+    int result;
+    retval = rpc_cuctxsynchronize_1(&result, clnt);
+    printf("[rpc] %s = %d\n", __FUNCTION__, result);
+	if (retval != RPC_SUCCESS) {
+		fprintf(stderr, "[rpc] %s failed.\n", __FUNCTION__);
+        return CUDA_ERROR_UNKNOWN;
+	}
+    return result;
+}
 #undef cuModuleGetGlobal
 DEF_FN(CUresult, cuModuleGetGlobal, CUdeviceptr*, dptr, size_t*, bytes, CUmodule, hmod, const char*, name)
 #undef cuMemGetInfo
@@ -113,10 +146,48 @@ CUresult cuMemAlloc(CUdeviceptr* dptr, size_t bytesize)
     return result.err;
 }
 
+CUresult cuMemAlloc_v2(CUdeviceptr* dptr, size_t bytesize)
+{
+	enum clnt_stat retval;
+    ptr_result result;
+    retval = rpc_cumemalloc_1(bytesize, &result, clnt);
+    //printf("pre %s(%p->%p, %lu) = %d\n", __FUNCTION__, dptr, *dptr, bytesize, ret);
+    printf("[rpc] %s(%lu) = %d, result %p\n", __FUNCTION__, bytesize, result.err, (void*)result.ptr_result_u.ptr);
+	if (retval != RPC_SUCCESS) {
+		fprintf(stderr, "[rpc] %s failed.", __FUNCTION__);
+        return CUDA_ERROR_UNKNOWN;
+	}
+    *dptr = result.ptr_result_u.ptr;
+    //printf("post %s(%p->%p, %lu) = %d\n", __FUNCTION__, dptr, *dptr, bytesize, ret);
+    return result.err;
+}
+
 #undef cuMemAllocPitch
 DEF_FN(CUresult, cuMemAllocPitch, CUdeviceptr*, dptr, size_t*, pPitch, size_t, WidthInBytes, size_t, Height, unsigned int, ElementSizeBytes)
 #undef cuMemFree
-DEF_FN(CUresult, cuMemFree, CUdeviceptr, dptr)
+// DEF_FN(CUresult, cuMemFree, CUdeviceptr, dptr)
+CUresult cuMemFree(CUdeviceptr dptr) {
+    enum clnt_stat retval;
+    int result;
+    retval = rpc_cumemfree_1(dptr, &result, clnt);
+    printf("[rpc] %s(%llx) = %d\n", __FUNCTION__, dptr, result);
+    if (retval != RPC_SUCCESS) {
+        fprintf(stderr, "[rpc] %s failed.", __FUNCTION__);
+        return CUDA_ERROR_UNKNOWN;
+    }
+    return result;
+}
+CUresult cuMemFree_v2(CUdeviceptr dptr) {
+    enum clnt_stat retval;
+    int result;
+    retval = rpc_cumemfree_1(dptr, &result, clnt);
+    printf("[rpc] %s(%llu) = %d\n", __FUNCTION__, dptr, result);
+    if (retval != RPC_SUCCESS) {
+        fprintf(stderr, "[rpc] %s failed.", __FUNCTION__);
+        return CUDA_ERROR_UNKNOWN;
+    }
+    return result;
+}
 #undef cuMemGetAddressRange
 DEF_FN(CUresult, cuMemGetAddressRange, CUdeviceptr*, pbase, size_t*, psize, CUdeviceptr, dptr)
 #undef cuMemHostGetDevicePointer
@@ -470,7 +541,7 @@ DEF_FN(CUresult, cuCtxSetCacheConfig, CUfunc_cache, config)
 DEF_FN(CUresult, cuCtxGetSharedMemConfig, CUsharedconfig*, pConfig)
 DEF_FN(CUresult, cuCtxGetStreamPriorityRange, int*, leastPriority, int*, greatestPriority)
 DEF_FN(CUresult, cuCtxSetSharedMemConfig, CUsharedconfig, config)
-DEF_FN(CUresult, cuCtxSynchronize, void)
+// DEF_FN(CUresult, cuCtxSynchronize, void)
 CUresult cuModuleLoad(CUmodule* module, const char* fname)
 {
 	enum clnt_stat retval;
@@ -612,10 +683,41 @@ CUresult cuMemcpyHtoD(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCou
 	}
     return result;
 }
+CUresult cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void* srcHost, size_t ByteCount)
+{
+	enum clnt_stat retval;
+    mem_data src;
+    int result;
+    src.mem_data_len = ByteCount;
+    src.mem_data_val = (void*)srcHost;
+    retval = rpc_cumemcpyhtod_1((uint64_t)dstDevice, src, &result, clnt);
+    printf("[rpc] %s = %d\n", __FUNCTION__, result);
+	if (retval != RPC_SUCCESS) {
+		fprintf(stderr, "[rpc] %s failed.", __FUNCTION__);
+        return CUDA_ERROR_UNKNOWN;
+	}
+    return result;
+}
 DEF_FN(CUresult, cuMemcpyHtoD_v2_ptds, CUdeviceptr, dstDevice, const void*, srcHost, size_t, ByteCount)
 #undef cuMemcpyDtoH
 // DEF_FN(CUresult, cuMemcpyDtoH, void*, dstHost, CUdeviceptr, srcDevice, size_t, ByteCount)
 CUresult cuMemcpyDtoH(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount)
+{
+	enum clnt_stat retval;
+    mem_data dst;
+    int result;
+    dst.mem_data_len = ByteCount;
+    dst.mem_data_val = (void*)dstHost;
+    // retval = rpc_cumemcpydtoh_1((uint64_t)dstDevice, src, &result, clnt);
+    retval = rpc_cumemcpydtoh_1(dst, (uint64_t)srcDevice, &result, clnt); 
+    printf("[rpc] %s = %d\n", __FUNCTION__, result);
+	if (retval != RPC_SUCCESS) {
+		fprintf(stderr, "[rpc] %s failed.", __FUNCTION__);
+        return CUDA_ERROR_UNKNOWN;
+	}
+    return result;
+}
+CUresult cuMemcpyDtoH_v2(void* dstHost, CUdeviceptr srcDevice, size_t ByteCount)
 {
 	enum clnt_stat retval;
     mem_data dst;

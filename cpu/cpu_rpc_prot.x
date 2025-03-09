@@ -446,7 +446,10 @@ program RPC_CD_PROG {
         dsz_result   rpc_cumemgetinfo_v2(void)                                 = 1028;
         int          rpc_cuctxdestroy(ptr)                                     = 1029;
         sz_result    rpc_cumemgetallocationgranularity(mem_data, int)          = 1030;
-        int          rpc_cuMemcpyDtoH(mem_data, ptr)                           = 1031;
+        mem_result   rpc_cuMemcpyDtoH(mem_data, ptr)                    = 1031;
+        ptr_result   rpc_cuCtxCreate(unsigned int, int)                        = 1032;
+        int          rpc_cuCtxSynchronize(void)                                = 1033;
+        int          rpc_cuMemFree(ptr)                                        = 1034;
 
         /* HIDDEN DRIVER API */
 /*        ptr_result   rpc_hidden_get_device_ctx(int)                            = 1101;

@@ -509,6 +509,16 @@ bool_t rpc_cumemalloc_1_svc(uint64_t size, ptr_result *result,
     return 1;
 }
 
+bool_t rpc_cumemfree_1_svc(uint64_t dptr, int *result,
+    struct svc_req *rqstp)
+{
+    LOG(LOG_DEBUG, "%s(%p)", __FUNCTION__, dptr);
+    GSCHED_RETAIN;
+    *result = cuMemFree_v2(dptr);
+    GSCHED_RELEASE;
+    return 1;
+}
+
 bool_t rpc_cuctxgetdevice_1_svc(int_result *result, struct svc_req *rqstp)
 {
     LOG(LOG_DEBUG, "%s", __FUNCTION__);
@@ -529,7 +539,7 @@ bool_t rpc_cumemcpyhtod_1_svc(uint64_t dptr, mem_data hptr, int *result,
     return 1;
 }
 
-bool_t rpc_cumemcpdtoh_1_svc(mem_data hptr, uint64_t dptr, int *result,
+bool_t rpc_cumemcpydtoh_1_svc(mem_data hptr, uint64_t dptr, int *result,
     struct svc_req *rqstp)
 {
     LOG(LOG_DEBUG, "%s(%p,%p,%d)", __FUNCTION__, dptr, hptr.mem_data_val, hptr.mem_data_len);
@@ -592,6 +602,44 @@ bool_t rpc_cudevicegetp2pattribute_1_svc(int attrib, ptr srcDevice, ptr dstDevic
     LOG(LOG_DEBUG, "%s", __FUNCTION__);
     GSCHED_RETAIN;
     result->err = cuDeviceGetP2PAttribute(&result->int_result_u.data, (CUdevice_P2PAttribute)attrib, (CUdevice)srcDevice, (CUdevice)dstDevice);
+    GSCHED_RELEASE;
+    return 1;
+}
+
+bool_t rpc_cuctxcreate_1_svc(unsigned int flags, int dev, ptr_result *result, struct svc_req *rqstp) 
+{
+    RECORD_API(int);
+    RECORD_SINGLE_ARG(dev);
+    LOG(LOG_DEBUG,
+        "rpc_cuCtxCreate_v2( flags: %d, dev: %d)",
+        flags, dev);
+    CUcontext* pctx = (CUcontext*)&result->ptr_result_u.ptr;
+    CUresult res;
+    GSCHED_RETAIN;
+    if ((res = cuCtxCreate_v2(pctx, flags, dev)) !=
+        CUDA_SUCCESS) {
+        LOGE(LOG_ERROR, "cuCtxCreate_v2 failed: %d", res);
+        result->err = -1;
+        return 1;
+    }
+    LOGE(LOG_DEBUG, "context: %p", (void*)*pctx);
+    if (resource_mg_create(&rm_contexts, (void *)*pctx) !=
+        0) {
+        LOGE(LOG_ERROR, "error in resource manager");
+        result->err = -1;
+    } else {
+        result->err = res;
+    }
+    GSCHED_RELEASE;
+    RECORD_RESULT(ptr_result_u, *result);
+    return 1;
+}
+
+bool_t rpc_cuctxsynchronize_1_svc(int *result, struct svc_req *rqstp) {
+
+    LOG(LOG_DEBUG, "%s", __FUNCTION__);
+    GSCHED_RETAIN;
+    *result = cuCtxSynchronize();
     GSCHED_RELEASE;
     return 1;
 }
