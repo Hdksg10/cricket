@@ -236,7 +236,31 @@ void cricket_main(size_t prog_num, size_t vers_num)
     switch (socktype) {
     case UNIX:
         LOG(LOG_INFO, "using UNIX...");
-        transp = svcunix_create(RPC_ANYSOCK, 0, 0, CD_SOCKET_PATH);
+        // transp = svctcp_create(RPC_ANYSOCK, 0, 0);
+        int sock;
+        struct sockaddr_in addr;
+        sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (sock < 0) {
+            LOGE(LOG_ERROR, "socket creation failed");
+            exit(1);
+        }
+        int opt = 1;
+        setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = INADDR_ANY;
+        addr.sin_port = htons(45021);
+        if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+            LOGE(LOG_ERROR, "bind failed");
+            close(sock);
+            exit(1);
+        }
+        if (listen(sock, 10) < 0) {
+            LOGE(LOG_ERROR, "listen failed");
+            close(sock);
+            exit(1);
+        }
+        transp = svctcp_create(sock, 0, 0);
         if (transp == NULL) {
             LOGE(LOG_ERROR, "cannot create service.");
             exit(1);
