@@ -236,7 +236,15 @@ void cricket_main(size_t prog_num, size_t vers_num)
     switch (socktype) {
     case UNIX:
         LOG(LOG_INFO, "using UNIX...");
-        // transp = svctcp_create(RPC_ANYSOCK, 0, 0);
+        transp = svctcp_create(RPC_ANYSOCK, 0, 0);
+        if (transp == NULL) {
+            LOGE(LOG_ERROR, "cannot create service.");
+            exit(1);
+        }
+        connection_is_local = 1;
+        break;
+    case TCP:
+        LOG(LOG_INFO, "using TCP...");
         int sock;
         struct sockaddr_in addr;
         sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -261,15 +269,6 @@ void cricket_main(size_t prog_num, size_t vers_num)
             exit(1);
         }
         transp = svctcp_create(sock, 0, 0);
-        if (transp == NULL) {
-            LOGE(LOG_ERROR, "cannot create service.");
-            exit(1);
-        }
-        connection_is_local = 1;
-        break;
-    case TCP:
-        LOG(LOG_INFO, "using TCP...");
-        transp = svctcp_create(RPC_ANYSOCK, 0, 0);
         if (transp == NULL) {
             LOGE(LOG_ERROR, "cannot create service.");
             exit(1);
